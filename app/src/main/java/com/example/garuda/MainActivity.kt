@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
@@ -23,15 +25,26 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             GarudaTheme {
+                val viewModel: com.example.garuda.ui.viewmodel.MainViewModel = androidx.hilt.navigation.compose.hiltViewModel()
+                val startDestination by viewModel.startDestination.collectAsState()
                 val navController = rememberNavController()
+
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    // Passing innerPadding to NavGraph might be needed if screens need to respect it, 
-                    // or we handle Scaffold inside screens.
-                    // For now, let's wrap NavGraph in a Box or similar to apply padding, 
-                    // or pass it down. 
-                    // Simplest for now: apply padding to the graph container.
                     androidx.compose.foundation.layout.Box(modifier = Modifier.padding(innerPadding)) {
-                         GarudaNavGraph(navController = navController)
+                        if (startDestination != null) {
+                            GarudaNavGraph(
+                                navController = navController,
+                                startDestination = startDestination!!
+                            )
+                        } else {
+                            // Show a loading screen or just a blank box while deciding
+                            androidx.compose.foundation.layout.Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = androidx.compose.ui.Alignment.Center
+                            ) {
+                                androidx.compose.material3.CircularProgressIndicator()
+                            }
+                        }
                     }
                 }
             }

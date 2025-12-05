@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Garuda</string>
+    <string name="default_web_client_id">639573114684-62bs7n1cgflr7c6hkc78j2e3og15m7i9.apps.googleusercontent.com</string>
+    <string name="api_key">AIzaSyDvFvgOFzY9b5nUwFxHg3-UUbwkmpJTl5I</string>
+
+
 </resources>

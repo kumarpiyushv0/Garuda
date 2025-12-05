@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <application
         android:name=".GarudaApp"
@@ -38,6 +39,21 @@
             android:name=".service.SosService"
             android:foregroundServiceType="location|microphone"
             android:exported="false" />
+
+        <service
+            android:name=".service.PowerButtonService"
+            android:foregroundServiceType="shortService"
+            android:exported="false" />
+
+        <service
+            android:name=".service.VoiceActivationService"
+            android:foregroundServiceType="microphone"
+            android:exported="false" />
+
+        <!-- Google Maps API Key -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/api_key" />
     </application>
 
 </manifest>

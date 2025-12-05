@@ -55,4 +55,10 @@ object AppModule {
     fun provideFirebaseDatabase(): com.google.firebase.database.FirebaseDatabase {
         return com.google.firebase.database.FirebaseDatabase.getInstance()
     }
+
+    @Provides
+    @Singleton
+    fun provideFirebaseAuth(): com.google.firebase.auth.FirebaseAuth {
+        return com.google.firebase.auth.FirebaseAuth.getInstance()
+    }
 }

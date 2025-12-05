@@ -7,13 +7,19 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 
 @Composable
-fun GarudaNavGraph(navController: NavHostController) {
+fun GarudaNavGraph(
+    navController: NavHostController,
+    startDestination: String = Screen.Onboarding.route
+) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Onboarding.route
+        startDestination = startDestination
     ) {
         composable(Screen.Onboarding.route) {
             com.example.garuda.ui.screens.OnboardingScreen(navController = navController)
+        }
+        composable(Screen.Login.route) {
+            com.example.garuda.ui.screens.LoginScreen(navController = navController)
         }
         composable(Screen.Home.route) {
             com.example.garuda.ui.screens.HomeScreen(navController = navController)
@@ -22,13 +28,16 @@ fun GarudaNavGraph(navController: NavHostController) {
             com.example.garuda.ui.screens.SosScreen(navController = navController)
         }
         composable(Screen.Map.route) {
-            Text("Map Screen")
+            com.example.garuda.ui.screens.MapScreen(navController = navController)
         }
         composable(Screen.Contacts.route) {
-            Text("Contacts Screen")
+            com.example.garuda.ui.screens.ContactsScreen(navController = navController)
         }
         composable(Screen.Settings.route) {
             Text("Settings Screen")
+        }
+        composable(Screen.Recordings.route) {
+            com.example.garuda.ui.screens.RecordingsScreen(navController = navController)
         }
     }
 }
