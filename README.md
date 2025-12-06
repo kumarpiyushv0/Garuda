@@ -32,24 +32,69 @@ You are in control. Easily add family members, friends, or guardians from your p
 
 ---
 
-## For Developers
+## 💻 Insights for Developers
 
-Garuda is built natively for Android using modern development practices.
+Garuda is built natively for Android using modern development practices, adhering to **Clean Architecture** principles and the **MVVM (Model-View-ViewModel)** pattern.
 
-### Tech Stack
-*   **Language**: Kotlin
-*   **UI Framework**: Jetpack Compose (Material3)
-*   **Architecture**: MVVM with Clean Architecture
-*   **Dependency Injection**: Hilt
-*   **Services**: Firebase (Firestore, Auth, Storage), Google Maps SDK, Gemini AI
+### 🏗️ Project Structure
 
-### Setup & Installation
-1.  **Clone the repository**: `git clone https://github.com/yourusername/garuda.git`
-2.  **Configuration**: Add `google-services.json` to `app/` and API keys (Maps, Gemini) to `local.properties`.
-3.  **Build**: Open in Android Studio, sync Gradle, and run.
+The project is organized into the following distinct layers:
 
-### Permissions Required
-*   Location (Fine/Coarse) - For tracking.
-*   SMS - To send alerts.
-*   Microphone - For audio evidence/voice format.
-*   Contacts - To select guardians.
+*   **`ui/`**: Contains all Jetpack Compose screens, components, and ViewModels. Handles user interaction and data presentation.
+*   **`domain/`**: The core business logic layer. Contains UseCases, Repository interfaces, and Data models. This layer is pure Kotlin and independent of the Android framework.
+*   **`data/`**: Handles data retrieval and storage. Implements Repository interfaces and manages sources like Room (local DB), DataStore, and Network APIs (Firebase/Retrofit).
+*   **`di/`**: Hilt modules for Dependency Injection, providing dependencies across the app.
+*   **`service/`**: Foreground services for long-running tasks like Location Tracking, Voice Activation, and Shake detection.
+
+### 🛠️ Tech Stack & Libraries
+
+*   **Language**: [Kotlin](https://kotlinlang.org/) (100%)
+*   **UI Framework**: [Jetpack Compose](https://developer.android.com/jetpack/compose) (Material3 Design)
+*   **Dependency Injection**: [Hilt](https://dagger.dev/hilt/)
+*   **Asynchronous Programming**: [Coroutines](https://kotlinlang.org/docs/coroutines-overview.html) & [Flow](https://kotlinlang.org/docs/flow.html)
+*   **Local Storage**:
+    *   [Room Database](https://developer.android.com/training/data-storage/room) for contact management.
+    *   [DataStore](https://developer.android.com/topic/libraries/architecture/datastore) for user preferences.
+*   **Cloud & Backend**:
+    *   **Firebase Authentication**: Secure user login.
+    *   **Firebase Firestore**: Storing user profiles and contacts.
+    *   **Firebase Storage**: Uploading evidence (audio/images).
+*   **AI & ML**:
+    *   **Gemini AI**: Used for intelligent analysis of situations (via `GeminiAnalyzer`).
+*   **Mapping**: [Google Maps SDK for Android](https://developers.google.com/maps/documentation/android-sdk/overview)
+*   **Background Tasks**: [WorkManager](https://developer.android.com/topic/libraries/architecture/workmanager) for reliable background execution.
+
+### ⚙️ Setup & Installation
+
+1.  **Clone the repository**:
+    ```bash
+    git clone https://github.com/yourusername/garuda.git
+    cd garuda
+    ```
+
+2.  **Firebase Setup**:
+    *   Create a project in the [Firebase Console](https://console.firebase.google.com/).
+    *   Enable **Authentication** (Email/Password), **Firestore**, and **Storage**.
+    *   Download `google-services.json` and place it in the `app/` directory.
+
+3.  **API Keys Configuration**:
+    *   Obtain a **Google Maps API Key** from Google Cloud Console.
+    *   Obtain a **Gemini API Key** from Google AI Studio.
+    *   Add them to your `local.properties` file (do NOT commit this file):
+        ```properties
+        MAPS_API_KEY=your_actual_maps_key
+        GEMINI_API_KEY=your_actual_gemini_key
+        ```
+
+4.  **Build and Run**:
+    *   Open the project in Android Studio (Koala or later recommended).
+    *   Sync Gradle files.
+    *   Select an emulator or physical device.
+    *   Run the app (`Shift + F10`).
+
+### 📝 Permissions Explained
+
+*   **`ACCESS_FINE_LOCATION`**: Critical for sending precise location in SOS alerts.
+*   **`SEND_SMS`**: Used as a fallback to send SOS alerts via SMS when internet is unavailable.
+*   **`RECORD_AUDIO`**: Allows the app to record ambient sound during an emergency.
+*   **`FOREGROUND_SERVICE`**: Required to keep the app active and tracking location even when the screen is locked.
