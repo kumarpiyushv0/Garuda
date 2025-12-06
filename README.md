@@ -5,6 +5,11 @@ Garuda is a personal safety application designed to provide peace of mind and im
 
 With a focus on speed and reliability, Garuda allows you to alert your trusted contacts instantly, sharing your live location and situation details without needing to unlock your phone or navigate through complex menus.
 
+![Platform](https://img.shields.io/badge/Platform-Android-brightgreen)
+![Language](https://img.shields.io/badge/Language-Kotlin-purple)
+![UI](https://img.shields.io/badge/UI-Jetpack%20Compose-blue)
+![Min SDK](https://img.shields.io/badge/Min%20SDK-26-orange)
+
 ## Key Features
 
 ### 🆘 Instant SOS Alerts
