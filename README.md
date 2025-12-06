@@ -33,6 +33,16 @@ For situations where looking at your screen isn't possible, you can trigger an S
 You are in control. Easily add family members, friends, or guardians from your phone's contact list. You decide who receives your alerts and location data.
 
 ---
+## 📱 Screenshots
+
+<img src="https://github.com/user-attachments/assets/d49e68ff-e70f-43bb-a335-8a1d9973aa0b" width="160"/>
+<img src="https://github.com/user-attachments/assets/b236978e-38e9-4b7a-b8cb-d609d0eed40d" width="160"/>
+<img src="https://github.com/user-attachments/assets/c3ab8e24-66d0-4c23-9039-0476f9ae588d" width="160"/>
+<img src="https://github.com/user-attachments/assets/a4956112-93ff-4055-ab8d-16da8931ab6d" width="160"/>
+<img src="https://github.com/user-attachments/assets/99f170d8-568e-4ef5-bf92-675f74a0aeea" width="160"/>
+
+
+---
 
 ## 💻 Insights for Developers
 
