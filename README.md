@@ -1,3 +1,5 @@
+<img src="app/src/main/res/drawable/icon.png" width="128" align="right" />
+
 # Garuda
 **Women’s Safety App with Live Tracking**
 
