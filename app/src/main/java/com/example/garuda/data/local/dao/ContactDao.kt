@@ -13,9 +13,13 @@ interface ContactDao {
     @Query("SELECT * FROM trusted_contacts")
     fun getAllContacts(): Flow<List<TrustedContactEntity>>
 
+    @Query("SELECT * FROM trusted_contacts")
+    suspend fun getAllContactsSync(): List<TrustedContactEntity>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertContact(contact: TrustedContactEntity)
+    suspend fun insertContact(contact: TrustedContactEntity): Long
 
     @Delete
     suspend fun deleteContact(contact: TrustedContactEntity)
 }
+

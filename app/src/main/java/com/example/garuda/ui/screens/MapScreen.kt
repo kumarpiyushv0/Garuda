@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -104,9 +106,11 @@ fun MapScreen(navController: NavController) {
             TopAppBar(
                 title = { Text("Nearby Help") },
                 navigationIcon = {
-                    // Replaced back icon with a simple text label
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Text("Back")
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
                     }
                 },
                 actions = {
@@ -118,7 +122,8 @@ fun MapScreen(navController: NavController) {
                             strokeWidth = 2.dp
                         )
                     }
-                }
+                },
+                windowInsets = WindowInsets(0.dp)
             )
         }
     ) { paddingValues ->

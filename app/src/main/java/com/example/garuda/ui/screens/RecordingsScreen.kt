@@ -2,6 +2,7 @@
 
 package com.example.garuda.ui.screens
 
+import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.util.Log
 import androidx.compose.foundation.layout.*
@@ -62,7 +63,8 @@ fun RecordingsScreen(navController: NavController) {
                             contentDescription = "Back"
                         )
                     }
-                }
+                },
+                windowInsets = WindowInsets(0.dp)
             )
         }
     ) { paddingValues ->
@@ -108,16 +110,20 @@ fun RecordingsScreen(navController: NavController) {
                                 currentlyPlaying = null
                             } else {
                                 // Start playing
-                                mediaPlayer?.release()
-                                mediaPlayer = MediaPlayer().apply {
-                                    setDataSource(recording.file.absolutePath)
-                                    prepare()
-                                    start()
-                                    setOnCompletionListener {
-                                        currentlyPlaying = null
+                                try {
+                                    mediaPlayer?.release()
+                                    mediaPlayer = MediaPlayer().apply {
+                                        setDataSource(recording.file.absolutePath)
+                                        prepare()
+                                        start()
+                                        setOnCompletionListener {
+                                            currentlyPlaying = null
+                                        }
                                     }
+                                    currentlyPlaying = recording.file.absolutePath
+                                } catch (e: Exception) {
+                                    Log.e("RecordingsScreen", "Error playing audio", e)
                                 }
-                                currentlyPlaying = recording.file.absolutePath
                             }
                         },
                         onDelete = {
@@ -172,7 +178,7 @@ private fun RecordingItem(
                 )
             ) {
                 Icon(
-                    imageVector = Icons.Default.PlayArrow, // use PlayArrow for both states to avoid missing Pause icon
+                    imageVector = Icons.Default.PlayArrow,
                     contentDescription = if (isPlaying) "Pause" else "Play"
                 )
             }
@@ -248,24 +254,29 @@ private fun loadRecordings(cacheDir: File): List<AudioRecording> {
     
     return cacheDir.listFiles { file ->
         file.name.startsWith("emergency_audio_") && file.name.endsWith(".3gp")
-    }?.map { file ->
+    }?.mapNotNull { file ->
+        // Skip files that are too small (likely corrupted or still being written)
+        if (file.length() < 100) return@mapNotNull null
+        
         // Extract timestamp from filename: emergency_audio_1234567890.3gp
         val timestamp = file.name
             .removePrefix("emergency_audio_")
             .removeSuffix(".3gp")
             .toLongOrNull() ?: file.lastModified()
         
-        // Get duration using MediaPlayer
+        // Get duration using MediaMetadataRetriever (more reliable than MediaPlayer)
         val duration = try {
-            val mp = MediaPlayer()
-            mp.setDataSource(file.absolutePath)
-            mp.prepare()
-            val durationMs = mp.duration
-            mp.release()
+            val retriever = MediaMetadataRetriever()
+            retriever.setDataSource(file.absolutePath)
+            val durationStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+            retriever.release()
+            val durationMs = durationStr?.toLongOrNull() ?: 0L
             formatDuration(durationMs)
         } catch (e: Exception) {
-            Log.e("RecordingsScreen", "Error reading audio duration", e)
-            "Unknown"
+            Log.e("RecordingsScreen", "Error reading audio duration for ${file.name}", e)
+            // Fallback: estimate duration from file size (rough estimate for 3gp)
+            val estimatedSeconds = (file.length() / 1600).toInt() // ~1.6KB per second for AMR-NB
+            if (estimatedSeconds > 0) formatDuration(estimatedSeconds * 1000L) else "Unknown"
         }
 
         AudioRecording(
@@ -278,8 +289,9 @@ private fun loadRecordings(cacheDir: File): List<AudioRecording> {
     }?.sortedByDescending { it.timestamp } ?: emptyList()
 }
 
-private fun formatDuration(durationMs: Int): String {
-    val seconds = (durationMs / 1000) % 60
-    val minutes = (durationMs / 1000) / 60
+private fun formatDuration(durationMs: Long): String {
+    val seconds = ((durationMs / 1000) % 60).toInt()
+    val minutes = ((durationMs / 1000) / 60).toInt()
     return String.format(Locale.getDefault(), "%d:%02d", minutes, seconds)
 }
+

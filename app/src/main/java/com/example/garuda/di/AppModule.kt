@@ -53,12 +53,21 @@ object AppModule {
     @Provides
     @Singleton
     fun provideFirebaseDatabase(): com.google.firebase.database.FirebaseDatabase {
-        return com.google.firebase.database.FirebaseDatabase.getInstance()
+        // Use the correct regional database URL
+        return com.google.firebase.database.FirebaseDatabase.getInstance(
+            "https://garuda-1d2ad-default-rtdb.asia-southeast1.firebasedatabase.app"
+        )
     }
 
     @Provides
     @Singleton
     fun provideFirebaseAuth(): com.google.firebase.auth.FirebaseAuth {
         return com.google.firebase.auth.FirebaseAuth.getInstance()
+    }
+
+    @Provides
+    @Singleton
+    fun provideFirebaseStorage(): com.google.firebase.storage.FirebaseStorage {
+        return com.google.firebase.storage.FirebaseStorage.getInstance()
     }
 }

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Person
@@ -104,7 +105,18 @@ fun ContactsScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Trusted Contacts") })
+            TopAppBar(
+                title = { Text("Trusted Contacts") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                },
+                windowInsets = WindowInsets(0.dp)
+            )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = { showDialog = true }) {
