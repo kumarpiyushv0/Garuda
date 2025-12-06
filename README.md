@@ -1,6 +1,6 @@
-<img src="app/src/main/res/drawable/icon.png" width="128" align="right" />
 
-# Garuda
+
+# <img src="app/src/main/res/drawable/icon.png" width="35" align="left" />Garuda
 **Women’s Safety App with Live Tracking**
 
 Garuda is a personal safety application designed to provide peace of mind and immediate assistance in emergencies. Whether you're commuting late at night, traveling alone, or just want to ensure your loved ones know you're safe, Garuda acts as your digital guardian.
