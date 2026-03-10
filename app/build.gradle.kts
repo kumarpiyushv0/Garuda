@@ -7,26 +7,36 @@ plugins {
     alias(libs.plugins.google.services)
 }
 
+import java.util.Properties
+
+// Read secrets from local.properties
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) load(file.inputStream())
+}
+
 android {
     namespace = "com.example.garuda"
-    compileSdk = 36 // release(36) in toml might be preview, defaulting to stable 34 or keeping existing if stable. keeping existing logic but maybe hardcoding 34 is safer for now? No, let's keep it clean.
-    // wait, the previous file had `compileSdk { version = release(36) }` which is preview.
-    // I will stick to what the user had but just add my stuff.
     compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.garuda"
         minSdk = 26
-        targetSdk = 36
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Inject secrets into BuildConfig from local.properties
+        buildConfigField("String", "GEMINI_API_KEY", "\"${localProperties.getProperty("GEMINI_API_KEY", "")}\"")
+        buildConfigField("String", "FIREBASE_DB_URL", "\"${localProperties.getProperty("FIREBASE_DB_URL", "")}\"")
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -42,7 +52,15 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
+}
+
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
 }
 
 dependencies {
@@ -74,7 +92,7 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.database)
     implementation(libs.firebase.auth)
-    implementation("com.google.firebase:firebase-storage-ktx")
+    implementation(libs.firebase.storage)
 
     // Maps & Location
     implementation(libs.maps.compose)
@@ -97,6 +115,9 @@ dependencies {
     implementation("com.google.ai.client.generativeai:generativeai:0.7.0")
 
     testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.turbine)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

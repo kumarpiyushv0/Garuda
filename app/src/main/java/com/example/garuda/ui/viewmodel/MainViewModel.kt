@@ -2,7 +2,7 @@ package com.example.garuda.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.garuda.data.local.DataStoreManager
+import com.example.garuda.domain.repository.AppPreferencesRepository
 import com.example.garuda.ui.navigation.Screen
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val dataStoreManager: DataStoreManager,
+    private val appPreferencesRepository: AppPreferencesRepository,
     private val auth: FirebaseAuth
 ) : ViewModel() {
 
@@ -24,7 +24,7 @@ class MainViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val isOnboardingCompleted = dataStoreManager.onboardingCompleted.first()
+            val isOnboardingCompleted = appPreferencesRepository.onboardingCompleted.first()
             val currentUser = auth.currentUser
 
             if (!isOnboardingCompleted) {

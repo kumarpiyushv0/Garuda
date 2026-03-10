@@ -2,9 +2,8 @@ package com.example.garuda.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.AuthCredential
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
+import com.example.garuda.domain.model.AppResult
+import com.example.garuda.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val auth: FirebaseAuth
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
@@ -22,18 +21,12 @@ class AuthViewModel @Inject constructor(
 
     fun signInWithGoogle(idToken: String) {
         _authState.value = AuthState.Loading
-        val credential = GoogleAuthProvider.getCredential(idToken, null)
-        signInWithCredential(credential)
-    }
-
-    private fun signInWithCredential(credential: AuthCredential) {
-        auth.signInWithCredential(credential)
-            .addOnSuccessListener {
-                _authState.value = AuthState.Success
+        viewModelScope.launch {
+            when (val result = authRepository.signInWithGoogle(idToken)) {
+                is AppResult.Success -> _authState.value = AuthState.Success
+                is AppResult.Error -> _authState.value = AuthState.Error(result.message)
             }
-            .addOnFailureListener { e ->
-                _authState.value = AuthState.Error(e.message ?: "Authentication Failed")
-            }
+        }
     }
     
     fun resetState() {

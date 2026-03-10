@@ -1,14 +1,15 @@
 package com.example.garuda.data.repository
 
 import android.util.Log
-import com.example.garuda.data.local.UserManager
+import com.example.garuda.domain.repository.AppPreferencesRepository
 import com.example.garuda.data.local.dao.ContactDao
 import com.example.garuda.data.local.entity.TrustedContactEntity
+import com.example.garuda.domain.model.AppResult
+import com.example.garuda.domain.repository.ContactRepository
+import com.example.garuda.di.ApplicationScope
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -17,40 +18,42 @@ import javax.inject.Singleton
  * Repository for managing trusted contacts with local Room database and Firebase sync
  */
 @Singleton
-class ContactRepository @Inject constructor(
+class ContactRepositoryImpl @Inject constructor(
     private val contactDao: ContactDao,
     private val firebaseDatabase: FirebaseDatabase,
-    private val userManager: UserManager
-) {
+    private val appPreferencesRepository: AppPreferencesRepository,
+    @ApplicationScope private val scope: CoroutineScope
+) : ContactRepository {
     companion object {
         private const val TAG = "ContactRepository"
     }
 
-    private val scope = CoroutineScope(Dispatchers.IO)
-
-    val allContacts: Flow<List<TrustedContactEntity>> = contactDao.getAllContacts()
+    override val allContacts: Flow<List<TrustedContactEntity>> = contactDao.getAllContacts()
 
     /**
      * Add a contact to local database and sync to Firebase
      */
-    suspend fun addContact(contact: TrustedContactEntity) {
-        // Insert locally first
-        val insertedId = contactDao.insertContact(contact)
-        val contactWithId = contact.copy(id = insertedId.toInt())
-        
-        // Sync to Firebase
-        syncContactToCloud(contactWithId)
+    override suspend fun addContact(contact: TrustedContactEntity): AppResult<Unit> {
+        return try {
+            val insertedId = contactDao.insertContact(contact)
+            val contactWithId = contact.copy(id = insertedId.toInt())
+            syncContactToCloud(contactWithId)
+            AppResult.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to add contact: ${contact.name}", e)
+            AppResult.error("Failed to add contact", e)
+        }
     }
 
-    /**
-     * Delete a contact from local database and Firebase
-     */
-    suspend fun deleteContact(contact: TrustedContactEntity) {
-        // Delete locally
-        contactDao.deleteContact(contact)
-        
-        // Delete from Firebase
-        deleteContactFromCloud(contact)
+    override suspend fun deleteContact(contact: TrustedContactEntity): AppResult<Unit> {
+        return try {
+            contactDao.deleteContact(contact)
+            deleteContactFromCloud(contact)
+            AppResult.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to delete contact: ${contact.name}", e)
+            AppResult.error("Failed to delete contact", e)
+        }
     }
 
     /**
@@ -58,7 +61,7 @@ class ContactRepository @Inject constructor(
      */
     private suspend fun syncContactToCloud(contact: TrustedContactEntity) {
         try {
-            val userId = userManager.getOrGenerateUserId()
+            val userId = appPreferencesRepository.getOrGenerateUserId()
             val contactRef = firebaseDatabase.getReference("users/$userId/contacts/${contact.id}")
             
             val contactMap = mapOf(
@@ -80,7 +83,7 @@ class ContactRepository @Inject constructor(
      */
     private suspend fun deleteContactFromCloud(contact: TrustedContactEntity) {
         try {
-            val userId = userManager.getOrGenerateUserId()
+            val userId = appPreferencesRepository.getOrGenerateUserId()
             val contactRef = firebaseDatabase.getReference("users/$userId/contacts/${contact.id}")
             contactRef.removeValue().await()
             Log.d(TAG, "Contact deleted from cloud: ${contact.name}")
@@ -92,12 +95,10 @@ class ContactRepository @Inject constructor(
     /**
      * Sync all local contacts to Firebase (useful for initial sync)
      */
-    suspend fun syncAllContactsToCloud() {
-        try {
-            val userId = userManager.getOrGenerateUserId()
+    override suspend fun syncAllContactsToCloud(): AppResult<Unit> {
+        return try {
+            val userId = appPreferencesRepository.getOrGenerateUserId()
             val contactsRef = firebaseDatabase.getReference("users/$userId/contacts")
-            
-            // Get all local contacts first
             val localContacts = contactDao.getAllContactsSync()
             
             val contactsMap = mutableMapOf<String, Any>()
@@ -112,17 +113,19 @@ class ContactRepository @Inject constructor(
             
             contactsRef.setValue(contactsMap).await()
             Log.d(TAG, "All contacts synced to cloud: ${localContacts.size} contacts")
+            AppResult.success(Unit)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to sync all contacts to cloud", e)
+            AppResult.error("Failed to sync contacts", e)
         }
     }
 
     /**
      * Fetch contacts from Firebase and update local database
      */
-    suspend fun fetchContactsFromCloud() {
-        try {
-            val userId = userManager.getOrGenerateUserId()
+    override suspend fun fetchContactsFromCloud(): AppResult<Unit> {
+        return try {
+            val userId = appPreferencesRepository.getOrGenerateUserId()
             val contactsRef = firebaseDatabase.getReference("users/$userId/contacts")
             val snapshot = contactsRef.get().await()
             
@@ -137,8 +140,6 @@ class ContactRepository @Inject constructor(
                         name = name,
                         phoneNumber = phoneNumber
                     )
-                    
-                    // Insert or update locally
                     contactDao.insertContact(contact)
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to parse contact from cloud: ${child.key}", e)
@@ -146,8 +147,10 @@ class ContactRepository @Inject constructor(
             }
             
             Log.d(TAG, "Contacts fetched from cloud: ${snapshot.childrenCount} contacts")
+            AppResult.success(Unit)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to fetch contacts from cloud", e)
+            AppResult.error("Failed to fetch contacts", e)
         }
     }
 }

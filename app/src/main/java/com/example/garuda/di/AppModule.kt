@@ -1,6 +1,7 @@
 package com.example.garuda.di
 
 import android.content.Context
+import com.example.garuda.BuildConfig
 import com.example.garuda.GarudaApp
 import com.example.garuda.data.local.AppDatabase
 import dagger.Module
@@ -53,9 +54,8 @@ object AppModule {
     @Provides
     @Singleton
     fun provideFirebaseDatabase(): com.google.firebase.database.FirebaseDatabase {
-        // Use the correct regional database URL
         return com.google.firebase.database.FirebaseDatabase.getInstance(
-            "https://garuda-1d2ad-default-rtdb.asia-southeast1.firebasedatabase.app"
+            BuildConfig.FIREBASE_DB_URL
         )
     }
 

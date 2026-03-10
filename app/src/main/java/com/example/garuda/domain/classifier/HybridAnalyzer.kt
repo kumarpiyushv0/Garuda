@@ -5,6 +5,8 @@ import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
+import javax.inject.Named
+
 /**
  * Hybrid Emergency Intent Analyzer
  * Combines on-device and cloud analysis for optimal accuracy
@@ -17,8 +19,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class HybridAnalyzer @Inject constructor(
-    private val onDeviceAnalyzer: OnDeviceAnalyzer,
-    private val geminiAnalyzer: GeminiAnalyzer
+    @Named("on_device") private val onDeviceAnalyzer: EmergencyIntentAnalyzer,
+    @Named("cloud") private val geminiAnalyzer: EmergencyIntentAnalyzer
 ) : EmergencyIntentAnalyzer {
 
     companion object {

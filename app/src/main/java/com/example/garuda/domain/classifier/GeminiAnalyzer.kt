@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.util.Log
+import com.example.garuda.BuildConfig
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.generationConfig
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -25,7 +26,6 @@ class GeminiAnalyzer @Inject constructor(
 
     companion object {
         private const val TAG = "GeminiAnalyzer"
-        private const val API_KEY = "AIzaSyCoLgfNF7UIYVyqpK-bWy6u1G992mqBq54"
         private const val TIMEOUT_MS = 10000L  // 10 second timeout
     }
 
@@ -33,7 +33,7 @@ class GeminiAnalyzer @Inject constructor(
         try {
             GenerativeModel(
                 modelName = "gemini-2.0-flash",  // Stable model for SDK 0.7.0
-                apiKey = API_KEY,
+                apiKey = BuildConfig.GEMINI_API_KEY,
                 generationConfig = generationConfig {
                     temperature = 0.1f
                     maxOutputTokens = 256

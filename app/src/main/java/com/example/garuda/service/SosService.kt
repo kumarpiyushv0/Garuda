@@ -30,7 +30,7 @@ class SosService : Service() {
     lateinit var locationClient: com.example.garuda.domain.location.LocationClient
 
     @Inject
-    lateinit var locationRepository: com.example.garuda.data.repository.LocationRepository
+    lateinit var locationRepository: com.example.garuda.domain.repository.LocationRepository
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 

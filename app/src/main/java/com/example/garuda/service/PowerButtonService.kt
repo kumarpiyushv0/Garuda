@@ -14,15 +14,22 @@ import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.garuda.R
-import com.example.garuda.domain.manager.SosManager
+import com.example.garuda.domain.usecase.emergency.TriggerEmergencyUseCase
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class PowerButtonService : Service() {
 
     @Inject
-    lateinit var sosManager: SosManager
+    lateinit var triggerEmergencyUseCase: TriggerEmergencyUseCase
+
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private val handler = Handler(Looper.getMainLooper())
     private var pressCount = 0
@@ -102,7 +109,9 @@ class PowerButtonService : Service() {
     }
 
     private fun triggerSos() {
-        sosManager.triggerSos()
+        serviceScope.launch {
+            triggerEmergencyUseCase()
+        }
     }
 
     private fun resetCount() {

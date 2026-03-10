@@ -4,14 +4,16 @@ import android.content.Context
 import android.media.MediaRecorder
 import android.os.Build
 import android.util.Log
-import com.example.garuda.data.repository.AudioRepository
+import com.example.garuda.domain.repository.AudioRepository
+import com.example.garuda.di.ApplicationScope
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -22,7 +24,8 @@ import javax.inject.Singleton
 @Singleton
 class AudioManager @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val audioRepository: AudioRepository
+    private val audioRepository: AudioRepository,
+    @ApplicationScope private val scope: CoroutineScope
 ) {
     companion object {
         private const val TAG = "AudioManager"
@@ -30,7 +33,6 @@ class AudioManager @Inject constructor(
 
     private var recorder: MediaRecorder? = null
     private var currentFile: File? = null
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     fun startRecording() {
         if (recorder != null) return
@@ -78,10 +80,13 @@ class AudioManager @Inject constructor(
             scope.launch {
                 try {
                     val result = audioRepository.uploadAudio(file)
-                    result.onSuccess { url ->
-                        Log.d(TAG, "Recording uploaded successfully: $url")
-                    }.onFailure { e ->
-                        Log.e(TAG, "Failed to upload recording", e)
+                    when (result) {
+                        is com.example.garuda.domain.model.AppResult.Success -> {
+                            Log.d(TAG, "Recording uploaded successfully: ${result.data}")
+                        }
+                        is com.example.garuda.domain.model.AppResult.Error -> {
+                            Log.e(TAG, "Failed to upload recording: ${result.message}")
+                        }
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "Upload error", e)
