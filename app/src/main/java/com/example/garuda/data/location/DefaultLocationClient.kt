@@ -16,6 +16,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
+import kotlin.coroutines.resume
 import javax.inject.Inject
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
@@ -60,6 +61,29 @@ class DefaultLocationClient @Inject constructor(
             awaitClose {
                 client.removeLocationUpdates(locationCallback)
             }
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    override suspend fun getLastKnownLocation(): Location? {
+        if (!context.hasLocationPermission()) {
+            return null
+        }
+        return try {
+            kotlinx.coroutines.suspendCancellableCoroutine { cont ->
+                client.lastLocation
+                    .addOnSuccessListener { location ->
+                        cont.resume(location, null)
+                    }
+                    .addOnFailureListener {
+                        cont.resume(null, null)
+                    }
+                    .addOnCanceledListener {
+                        cont.cancel()
+                    }
+            }
+        } catch (e: Exception) {
+            null
         }
     }
 }

@@ -23,8 +23,6 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class SosService : Service() {
 
-    @Inject
-    lateinit var audioManager: com.example.garuda.data.audio.AudioManager
 
     @Inject
     lateinit var locationClient: com.example.garuda.domain.location.LocationClient
@@ -55,15 +53,12 @@ class SosService : Service() {
 
         val notification = NotificationCompat.Builder(this, channelId)
             .setContentTitle("SOS ACTIVE")
-            .setContentText("Sharing live location and recording audio...")
+            .setContentText("Sharing live location...")
             .setSmallIcon(R.mipmap.ic_launcher)
             .setOngoing(true)
             .build()
 
         startForeground(1, notification)
-        
-        // Start Audio
-        audioManager.startRecording()
 
         // Start Location Updates
         locationClient.getLocationUpdates(5000L) // 5 seconds interval
@@ -75,7 +70,6 @@ class SosService : Service() {
     }
     
     private fun stopService() {
-        audioManager.stopRecording()
         serviceScope.cancel()
         stopSelf()
     }

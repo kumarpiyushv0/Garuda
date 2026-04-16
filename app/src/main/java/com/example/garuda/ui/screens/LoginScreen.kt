@@ -18,6 +18,7 @@ import com.example.garuda.R
 import com.example.garuda.ui.navigation.Screen
 import com.example.garuda.ui.viewmodel.AuthState
 import com.example.garuda.ui.viewmodel.AuthViewModel
+import androidx.credentials.CustomCredential
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import kotlinx.coroutines.launch
@@ -31,6 +32,7 @@ fun LoginScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val credentialManager = CredentialManager.create(context)
+    var isGoogleSignInInProgress by remember { mutableStateOf(false) }
 
     LaunchedEffect(authState) {
         when (authState) {
@@ -56,17 +58,20 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(text = "Garuda Login", style = MaterialTheme.typography.headlineLarge)
+        Text(text = "Garud Login", style = MaterialTheme.typography.headlineLarge)
         
         Spacer(modifier = Modifier.height(32.dp))
 
-        if (authState is AuthState.Loading) {
+        if (authState is AuthState.Loading || isGoogleSignInInProgress) {
             CircularProgressIndicator()
         } else {
             Button(
                 onClick = {
                     scope.launch {
+                        isGoogleSignInInProgress = true
+                        kotlinx.coroutines.delay(100) // Yield to UI thread to draw the loader
                         signInWithGoogle(context, credentialManager, viewModel)
+                        isGoogleSignInInProgress = false
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -99,10 +104,19 @@ private suspend fun signInWithGoogle(
         )
 
         val credential = result.credential
-        if (credential is GoogleIdTokenCredential) {
-            viewModel.signInWithGoogle(credential.idToken)
-        } else {
-            Toast.makeText(context, "Unexpected credential type", Toast.LENGTH_SHORT).show()
+        when {
+            credential is CustomCredential &&
+            credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL -> {
+                try {
+                    val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                    viewModel.signInWithGoogle(googleIdTokenCredential.idToken)
+                } catch (e: Exception) {
+                    Toast.makeText(context, "Failed to parse credential: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+            else -> {
+                Toast.makeText(context, "Unexpected credential type", Toast.LENGTH_SHORT).show()
+            }
         }
 
     } catch (e: GetCredentialException) {

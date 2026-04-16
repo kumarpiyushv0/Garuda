@@ -121,7 +121,7 @@ fun OnboardingPage(
         when (page) {
             0 -> {
                 Text(
-                    text = "Welcome to Garuda",
+                    text = "Welcome to Garud",
                     style = MaterialTheme.typography.displayMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,

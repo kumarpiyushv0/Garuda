@@ -1,9 +1,7 @@
 package com.example.garuda.di
 
-import com.example.garuda.data.repository.AudioRepositoryImpl
 import com.example.garuda.data.repository.ContactRepositoryImpl
 import com.example.garuda.data.repository.LocationRepositoryImpl
-import com.example.garuda.domain.repository.AudioRepository
 import com.example.garuda.domain.repository.ContactRepository
 import com.example.garuda.domain.repository.LocationRepository
 import dagger.Binds
@@ -43,11 +41,6 @@ abstract class RepositoryModule {
         geminiAnalyzer: GeminiAnalyzer
     ): EmergencyIntentAnalyzer
 
-    @Binds
-    @Singleton
-    abstract fun bindAudioRepository(
-        audioRepositoryImpl: AudioRepositoryImpl
-    ): AudioRepository
 
     @Binds
     @Singleton

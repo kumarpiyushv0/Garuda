@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "639573114684",
+    "firebase_url": "https://garuda-1d2ad-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "garuda-1d2ad",
     "storage_bucket": "garuda-1d2ad.firebasestorage.app"
   },
@@ -12,7 +13,20 @@
           "package_name": "com.example.garuda"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "639573114684-4mk726norvrj9odhka9h8j3lgga2bo01.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.garuda",
+            "certificate_hash": "bfb39389a1e8ccdc24eaa538fb9bc96aecb8b352"
+          }
+        },
+        {
+          "client_id": "639573114684-62bs7n1cgflr7c6hkc78j2e3og15m7i9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBz5DFDZ_Vaz4otNquX2TzS68M7cXrl61c"
@@ -20,7 +34,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "639573114684-62bs7n1cgflr7c6hkc78j2e3og15m7i9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

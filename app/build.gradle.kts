@@ -17,7 +17,7 @@ val localProperties = Properties().apply {
 
 android {
     namespace = "com.example.garuda"
-    compileSdk = 36
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.garuda"
@@ -97,6 +97,7 @@ dependencies {
     // Maps & Location
     implementation(libs.maps.compose)
     implementation(libs.play.services.location)
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 
     // WorkManager
     implementation(libs.androidx.work.runtime.ktx)
